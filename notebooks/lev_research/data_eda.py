@@ -277,6 +277,7 @@ df_agent = pd.concat([df_agent, air_names_df], axis=1)
 """
 
 # %% ФИЛЬТР
+df_agent = df_agent.drop_duplicates()
 df_agent = df_agent[
     ~(
         (df_agent["dep_back_tz"] != "")
@@ -285,7 +286,7 @@ df_agent = df_agent[
     )
 ]
 df_agent = df_agent[df_agent.Amount > 0]
-
+df_agent = df_agent[~df_agent["ArrivalDate"].isna()]
 
 # %%
 df_agent["DepartureDate_conv"] = df_agent.apply(
@@ -312,26 +313,51 @@ df_agent["forw_hours"] = (
 df_agent["back_hours"] = (
     (df_agent["ReturnArrivalDate"] - df_agent["ReturnDepatrureDate_conv"])
     / np.timedelta64(1, "h")
-).fillna(0)
+).fillna(9999)
+
+# %%
+df_agent["total_hours"] = df_agent["forw_hours"] + df_agent["back_hours"]
+
+# %%
+df_agent["forw_hours_diff_min"] = df_agent.groupby(["RequestID"])[
+    "forw_hours"
+].transform(lambda x: (x - x.min()) / x)
+
+# %%
+# сомнение на этот счет
+df_agent["back_hours_diff_min"] = (
+    df_agent.groupby(["RequestID"])["back_hours"]
+    .transform(lambda x: (x - x.min()) / x)
+    .fillna(9999)
+)
+
+# %%
+# Сомнение на самом деле насчет этого
+df_agent["req_dep_hours_diff"] = (
+    df_agent["DepartureDate"] - df_agent["RequestDepartureDate"]
+) / np.timedelta64(1, "h")
 
 
 # %%
-df_agent.groupby(["RequestID"])["back_hours"].transform(
-    lambda x: x.max() - x
-).value_counts()
-
-# %%
-df_agent.groupby(["RequestID"])["forw_hours"].transform(
-    lambda x: x.max() - x
-).value_counts()
+# Сомнение на самом деле насчет этого
+df_agent["req_ret_hours_diff"] = (
+    (df_agent["ReturnDepatrureDate"] - df_agent["RequestReturnDate"])
+    / np.timedelta64(1, "h")
+).fillna(9999)
 
 # %%
 """
 5.2.3 Price difference compare to others offers in request
 """
 # %%
+df_agent["price_diff_min_perc"] = df_agent.groupby(["RequestID"])["Amount"].transform(
+    lambda x: (x - x.min()) / x
+)
 
 # %%
-df_agent.groupby(["RequestID"])["Amount"].transform(lambda x: x.max() - x)
+df_agent["TravellerGrade"] = df_agent["TravellerGrade"].fillna("Unknown")
 # %%
-df_agent.groupby(["RequestID"])["Amount"].transform(lambda x: x - x.min())
+
+df_agent.to_csv("../../data/processed/calculated_features.csv")
+
+# %%
