@@ -16,13 +16,13 @@ model_one_way = ModelBuilder.from_file(configuration.path_model_one_way)
 model_two_way = ModelBuilder.from_file(configuration.path_model_two_way)
 
 
-def inference(data: pd.DataFrame) -> np.ndarray:
+def inference(data: pd.Series) -> np.ndarray:
     """Get predictions for data
 
     Parameters
     ----------
-    data : pd.DataFrame
-        Batch of data to predict. Batch contains rows for only one unique RequestID
+    data : pd.Series
+        Row with data for offer
 
     Returns
     -------
@@ -32,11 +32,16 @@ def inference(data: pd.DataFrame) -> np.ndarray:
 
     pred_probas = (
         model_one_way.predict_proba(data[configuration.cols_model_one_way])
-        if data.back_hours.isna().sum() > 0
+        if pd.isna(data.back_hours)
         else model_two_way.predict_proba(data[configuration.cols_model_two_way])
-    )[:, 1]
+    )
 
-    return pred_probas
+    return pred_probas[1]
+
+
+# %%
+pd.set_option("display.max_rows", 1000)
+pd.set_option("display.max_columns", 50)
 
 
 # %%
@@ -47,7 +52,7 @@ data = data.rename(columns={"ValueRu": "TravellerGrade"})
 data = data[~data.index.duplicated()].drop(columns="Position ( from 1 to n)")
 # %%
 transformed = data_transformer.transform(data)
-data["probas"] = inference(transformed)
+data["probas"] = transformed.apply(lambda x: inference(x), axis=1)
 # %%
 data["Position ( from 1 to n)"] = (
     data.groupby(["RequestID"])["probas"]
@@ -55,6 +60,7 @@ data["Position ( from 1 to n)"] = (
     .astype(int)
 )
 
+# %%
 data.drop(columns=["probas"]).to_excel(
     "../../data/processed/submission_fit_predict_team.xlsx"
 )
