@@ -236,6 +236,8 @@ for item in np.unique(air_names_df.values.reshape(-1)):
         print("аэропорт", item)
 
 # %%
+airports["MOW"]
+# %%
 
 air_names_df["dep_forw_tz"] = air_names_df["dep_forw"].apply(
     lambda x: get_airport_info(x, airports)[0]
@@ -287,6 +289,12 @@ df_agent = df_agent[
 ]
 df_agent = df_agent[df_agent.Amount > 0]
 df_agent = df_agent[~df_agent["ArrivalDate"].isna()]
+df_agent = df_agent[
+    ~(
+        (~df_agent["ReturnDepatrureDate"].isna())
+        & (df_agent["RequestReturnDate"].isna())
+    )
+]
 
 # %%
 df_agent["DepartureDate_conv"] = df_agent.apply(
@@ -311,10 +319,11 @@ df_agent["forw_hours"] = (
     df_agent["ArrivalDate"] - df_agent["DepartureDate_conv"]
 ) / np.timedelta64(1, "h")
 df_agent["back_hours"] = (
-    (df_agent["ReturnArrivalDate"] - df_agent["ReturnDepatrureDate_conv"])
-    / np.timedelta64(1, "h")
-).fillna(9999)
+    df_agent["ReturnArrivalDate"] - df_agent["ReturnDepatrureDate_conv"]
+) / np.timedelta64(1, "h")
 
+# %%
+df_agent = df_agent[~((df_agent.forw_hours <= 0) | (df_agent.back_hours <= 0))]
 # %%
 df_agent["total_hours"] = df_agent["forw_hours"] + df_agent["back_hours"]
 
@@ -324,12 +333,20 @@ df_agent["forw_hours_diff_min"] = df_agent.groupby(["RequestID"])[
 ].transform(lambda x: (x - x.min()) / x)
 
 # %%
+df_agent["forw_hours_diff_mean"] = df_agent.groupby(["RequestID"])[
+    "forw_hours"
+].transform(lambda x: (x - x.mean()) / x)
+
+# %%
 # сомнение на этот счет
-df_agent["back_hours_diff_min"] = (
-    df_agent.groupby(["RequestID"])["back_hours"]
-    .transform(lambda x: (x - x.min()) / x)
-    .fillna(9999)
-)
+df_agent["back_hours_diff_min"] = df_agent.groupby(["RequestID"])[
+    "back_hours"
+].transform(lambda x: (x - x.min()) / x)
+
+# %%
+df_agent["back_hours_diff_mean"] = df_agent.groupby(["RequestID"])[
+    "back_hours"
+].transform(lambda x: (x - x.mean()) / x)
 
 # %%
 # Сомнение на самом деле насчет этого
@@ -341,9 +358,8 @@ df_agent["req_dep_hours_diff"] = (
 # %%
 # Сомнение на самом деле насчет этого
 df_agent["req_ret_hours_diff"] = (
-    (df_agent["ReturnDepatrureDate"] - df_agent["RequestReturnDate"])
-    / np.timedelta64(1, "h")
-).fillna(9999)
+    df_agent["ReturnDepatrureDate"] - df_agent["RequestReturnDate"]
+) / np.timedelta64(1, "h")
 
 # %%
 """
@@ -354,10 +370,23 @@ df_agent["price_diff_min_perc"] = df_agent.groupby(["RequestID"])["Amount"].tran
     lambda x: (x - x.min()) / x
 )
 
+df_agent["price_diff_mean_perc"] = df_agent.groupby(["RequestID"])["Amount"].transform(
+    lambda x: (x - x.mean()) / x
+)
+
 # %%
 df_agent["TravellerGrade"] = df_agent["TravellerGrade"].fillna("Unknown")
-# %%
 
+# %%
+df_agent["is_direct"] = df_agent[["SegmentCount", "back_hours"]].apply(
+    lambda x: 1
+    if (
+        (x.SegmentCount == 1 and pd.isna(x.back_hours))
+        or (x.SegmentCount == 2 and x.back_hours > 0)
+    )
+    else 0,
+    axis=1,
+)
+
+# %%
 df_agent.to_csv("../../data/processed/calculated_features.csv")
-
-# %%
