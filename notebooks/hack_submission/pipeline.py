@@ -16,7 +16,7 @@ model_one_way = ModelBuilder.from_file(configuration.path_model_one_way)
 model_two_way = ModelBuilder.from_file(configuration.path_model_two_way)
 
 
-def inference(data: pd.Series) -> np.ndarray:
+def inference(data: pd.Series) -> float:
     """Get predictions for data
 
     Parameters
@@ -26,7 +26,7 @@ def inference(data: pd.Series) -> np.ndarray:
 
     Returns
     -------
-    pred_probas : np.ndarray
+    pred_probas : float
         Probas of `1` class prediction
     """
 

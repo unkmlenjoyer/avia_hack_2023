@@ -2,6 +2,8 @@ from catboost import CatBoostClassifier
 
 
 class ModelBuilder:
+    """Class for construction Catboost models"""
+
     @staticmethod
     def from_file(path: str) -> CatBoostClassifier:
         """Create model from file
