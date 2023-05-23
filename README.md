@@ -12,10 +12,10 @@ Challenge 2023](https://codenrock.com/contests/aeroclub-challenge-2023#/info))
 
 - `notebooks` contains script (.py format):
   - `research`: EDA, data cleaning, feature engineering
-  - `service_api_test`: Test service api
 - `data` contains .xlsx / .csv files with initial data from hack, processed data after feature engineering
 - `service` contains core of FastAPI service.
 - `requirements.txt` is list of necessary packages
+- `tests` contains test script for service api.
 
 
 ### 3. Installation
@@ -41,7 +41,7 @@ Just go to command line and type next command:
 <code>docker run --rm -d --env-file .env -p 8001:8001 ranking_service</code>
 
 
-### 5 Examples of usage
+### 5. Examples of usage
 -----
 
 If you have Postman try to make POST request to `http://0.0.0.0:8001/predict_batch` with body from `test_request.json` from `notebooks/service_api_test`
