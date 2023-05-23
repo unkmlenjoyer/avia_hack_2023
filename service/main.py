@@ -10,41 +10,45 @@ from fastapi import FastAPI
 from src.modelbuilder import ModelBuilder
 from src.preprocessing import RequestTransformer
 
+# configuration env
 SERVICE_HOST = os.getenv("SERVICE_HOST")
 SERVICE_PORT = int(os.getenv("SERVICE_PORT"))
 
+# model config
 configuration = ServiceConfig()
 air_data = airportsdata.load("IATA") | configuration.extended_air_data
 data_transformer = RequestTransformer(air_data)
 data_transformer.fit()
 
+# load models
 model_one_way = ModelBuilder.from_file(configuration.path_model_one_way)
 model_two_way = ModelBuilder.from_file(configuration.path_model_two_way)
+
 
 app = FastAPI()
 
 
-def inference(data: pd.DataFrame) -> np.ndarray:
+def inference(data: pd.Series) -> float:
     """Get predictions for data
 
     Parameters
     ----------
-    data : pd.DataFrame
+    data : pd.Series
         Batch of data to predict. Batch contains rows for only one unique RequestID
 
     Returns
     -------
-    pred_probas : np.ndarray
-        Probas of `1` class prediction
+    pred_probas : float
+        Proba of `1` class prediction
     """
 
     pred_probas = (
         model_one_way.predict_proba(data[configuration.cols_model_one_way])
-        if data.back_hours.isna().sum() > 0
+        if pd.isna(data.back_hours)
         else model_two_way.predict_proba(data[configuration.cols_model_two_way])
-    )[:, 1]
+    )
 
-    return pred_probas
+    return pred_probas[1]
 
 
 @app.get("/")
@@ -68,7 +72,7 @@ def get_predict(request: Dict):
     tranformed_batch = data_transformer.transform(batch)
 
     # get probas for rows
-    batch["probas"] = inference(tranformed_batch)
+    batch["probas"] = tranformed_batch.apply(lambda x: inference(x), axis=1)
 
     # create rank by probas
     batch["rank_level"] = (
