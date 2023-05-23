@@ -2,11 +2,11 @@
 import airportsdata
 import numpy as np
 import pandas as pd
-from config import ServiceConfig
+from config import ModelConfig
 from src.modelbuilder import ModelBuilder
 from src.preprocessing import RequestTransformer
 
-configuration = ServiceConfig()
+configuration = ModelConfig()
 
 air_data = airportsdata.load("IATA") | configuration.extended_air_data
 data_transformer = RequestTransformer(air_data)
@@ -52,6 +52,8 @@ data = data.rename(columns={"ValueRu": "TravellerGrade"})
 data = data[~data.index.duplicated()].drop(columns="Position ( from 1 to n)")
 # %%
 transformed = data_transformer.transform(data)
+
+# %%
 data["probas"] = transformed.apply(lambda x: inference(x), axis=1)
 # %%
 data["Position ( from 1 to n)"] = (

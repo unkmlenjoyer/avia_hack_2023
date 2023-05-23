@@ -3,7 +3,7 @@ from typing import Dict, List
 
 
 @dataclass
-class ServiceConfig:
+class ModelConfig:
     """Class with configuration / extended data
 
     path_model_one_way : str
