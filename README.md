@@ -38,7 +38,7 @@ Challenge 2023](https://codenrock.com/contests/aeroclub-challenge-2023#/info))
 
    <code>docker build -t ranking_service .</code>
 
-### 5. Запуск
+### 4. Запуск
 -----
 
 перейдите в командую строку и выполните следующую команду:
@@ -51,7 +51,9 @@ Challenge 2023](https://codenrock.com/contests/aeroclub-challenge-2023#/info))
 
 Если у вас есть Postman, выполните POST запрос к `http://0.0.0.0:8001/predict_batch` с содержимым `test_request.json` из `test/service_api_test`
 
-В ответ вы получите исходные данные с вероятностю и рангом в выдаче внутри одного RequestID
+В ответ вы получите исходные данные с вероятностью и рангом (позицией) в выдаче внутри одного `RequestID`
+
+![Пример ответа сервиса](docs/service/api_response.png)
 
 # EN
 
@@ -102,4 +104,6 @@ Just go to command line and type next command:
 
 If you have Postman try to make POST request to `http://0.0.0.0:8001/predict_batch` with body from `test_request.json` from `test/service_api_test`
 
-You will recieve JSON with proba (if offer is likely to be sent) and ranking level within a single request (position).
+You will recieve JSON with proba (if offer is likely to be sent) and ranking level within a single `RequestID` (position).
+
+![Example of service response](docs/service/api_response.png)
