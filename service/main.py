@@ -67,6 +67,7 @@ def get_predict(request: Dict):
 
     # reformat dict to batch
     batch = pd.DataFrame().from_dict(request, orient="index")
+    batch["SearchRoute"] = batch["SearchRoute"].str.replace("\\", "")
 
     # create features for every row in RequestID
     tranformed_batch = data_transformer.transform(batch)
