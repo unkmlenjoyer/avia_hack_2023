@@ -15,10 +15,12 @@ Challenge 2023](https://codenrock.com/contests/aeroclub-challenge-2023#/info))
 ### 2. Структура проекта
 -----
 
+- `data_utils`: содержит скрипт загрузки данных из `Google Drive`
+- `data` содержит .xlsx / .csv файлы с изначальными данными с хакатона, обработанные данные после построения новых признаков. Каталог формируется после запуска скрипта `get_data.py` из `data_utils`
+- `docs` содержит различные графики / скриншоты, а также презентацию (каталог `present`)
 - `notebooks` содержит скрипты исследования (.py формата):
   - `research`: разведочный анализ данных, очистка данных, построение новых признаков
   - `hack_submission`: пайплайн предсказания на тестовых данных
-- `data` содержит .xlsx / .csv файлы с изначальными данными с хакатона, обработанные данные после построения новых признаков
 - `service` содержит файлы FastAPI сервиса.
 - `tests` содержит тестовый скрипт проверки для api сервиса.
 
@@ -53,9 +55,12 @@ Challenge 2023](https://codenrock.com/contests/aeroclub-challenge-2023#/info))
 ### 5. Пример использования
 -----
 
-Если у вас есть Postman, выполните POST запрос к `http://0.0.0.0:8001/predict_batch` с содержимым `test_request.json` из `test/service_api_test`
+Если у вас есть Postman, выполните POST запрос к `http://0.0.0.0:8001/predict_batch` с содержимым `test_request.json` из `tests/service_api_test`.
 
-В ответ вы получите исходные данные с вероятностью и рангом (позицией) в выдаче внутри одного `RequestID`
+Ecли у вас нет Postman, перейдите к скрипту `test_inference.py` в `tests/service_api_test`,
+выполните последовательно команды.
+
+В ответ на запрос вы получите исходные данные с вероятностью и рангом (позицией) в выдаче внутри одного `RequestID`
 
 ![Пример ответа сервиса](docs/service/api_response.png)
 
@@ -74,12 +79,14 @@ In fact, it is a binary classification task (whether an offer will be added/sele
 ### 2. Project structure
 -----
 
+- `data_utils`: contains script with dataloader form `Google Drive`
+- `data` contains .xlsx / .csv files with initial data from hack, processed data after feature engineering. After running the script `get_data.py ` (from the `data_utils` directory)
+the `data` directory will be created.
+- `docs` contains graphs / screens and final solution presentation (folder `present`)
 - `notebooks` contains script (.py format):
   - `research`: EDA, data cleaning, feature engineering
   - `hack_submission`: pipeline of submission
-- `data` contains .xlsx / .csv files with initial data from hack, processed data after feature engineering
 - `service` contains core of FastAPI service.
-- `requirements.txt` is list of necessary packages
 - `tests` contains test script for service api.
 
 
@@ -110,6 +117,8 @@ Just go to command line and type next command:
 -----
 
 If you have Postman try to make POST request to `http://0.0.0.0:8001/predict_batch` with body from `test_request.json` from `test/service_api_test`
+
+If you don't have Postman, go to the script `test_inference.py` in `tests/service_api_test` and run the commands in the script.
 
 You will recieve JSON with proba (if offer is likely to be sent) and ranking level within a single `RequestID` (position).
 

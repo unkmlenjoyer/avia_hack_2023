@@ -1,6 +1,5 @@
 # %%
 import airportsdata
-import numpy as np
 import pandas as pd
 from config import ModelConfig
 from src.modelbuilder import ModelBuilder
@@ -50,6 +49,7 @@ data = pd.read_excel("../../data/raw_data/RequestAgent_ToCheck.xlsx", index_col=
 data = data.rename(columns={"ValueRu": "TravellerGrade"})
 # %%
 data = data[~data.index.duplicated()].drop(columns="Position ( from 1 to n)")
+
 # %%
 transformed = data_transformer.transform(data)
 
