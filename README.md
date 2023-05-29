@@ -11,6 +11,7 @@ Challenge 2023](https://codenrock.com/contests/aeroclub-challenge-2023#/info))
 
 По факту является задачей бинарной классификации (будет ли добавлено / выбрано предложение в список на отправку или нет)
 
+Лидерборд - ТОП 5 (4 место)
 
 ### 2. Структура проекта
 -----
@@ -75,6 +76,7 @@ Challenge 2023](https://codenrock.com/contests/aeroclub-challenge-2023#/info))
 
 In fact, it is a binary classification task (whether an offer will be added/selected to the list for submission or not)
 
+Leaderboard - TOP 5 (4th place)
 
 ### 2. Project structure
 -----
